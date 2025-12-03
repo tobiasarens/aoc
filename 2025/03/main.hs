@@ -26,6 +26,3 @@ long :: Int ->  IO()
 long part
     | part == 1 = run "l.txt"
     | otherwise = run2 "l.txt"
-
---findJoltage :: [Int] -> Int
---findJoltage digits = elemIndex
