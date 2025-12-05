@@ -6,14 +6,14 @@ main = long 2
 run :: String -> IO()
 run file = do
     putStrLn "Part 1"
-    ls <- splitOn "," . concat . lines <$> readFile file
+    ls <-  lines <$> readFile file
     print ls
     return ()
 
 run2 :: String -> IO()
 run2 file = do
     putStrLn "Part 2"
-    ls <- splitOn "," . concat . lines <$> readFile file
+    ls <-  lines <$> readFile file
     print ls
     return ()
 
@@ -26,6 +26,3 @@ long :: Int ->  IO()
 long part
     | part == 1 = run "l.txt"
     | otherwise = run2 "l.txt"
-
---findJoltage :: [Int] -> Int
---findJoltage digits = elemIndex
