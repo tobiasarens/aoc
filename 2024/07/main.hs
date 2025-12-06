@@ -1,49 +1,73 @@
 import Data.List.Split
 
-part1 = do
-    contents <- readFile "s.txt"
-    -- print . map readInt . words $ contents
-    let res = map (splitOn ":") $ lines $ contents
-    let f = filter hasSolution' $  map processLine  res
-    print f
+main :: IO()
+main = do
+    putStrLn "running part 1 on long input"
+    long 1
+    putStrLn ""
+    putStrLn "running part 2 on long input"
+    long 2
 
+run :: String -> IO()
+run file = do
+    putStrLn "Part 1"
+    ls <- map (splitOn ":") . lines <$> readFile file
+    let problems = map (\l -> (readInt (head l) , map readInt (words (l !! 1) ))) ls :: [(Int, [Int])]
+    --print problems
+
+    let possible = filter solvable problems
+
+    --print possible
+
+    print . sum $ map fst possible
+
+    return ()
+
+run2 :: String -> IO()
+run2 file = do
+    putStrLn "Part 2"
+    ls <- map (splitOn ":") . lines <$> readFile file
+    let problems = map (\l -> (readInt (head l) , map readInt (words (l !! 1) ))) ls :: [(Int, [Int])]
+    --print problems
+
+    let possible = filter solvable2 problems
+
+    --print possible
+
+    print . sum $ map fst possible
+    return ()
+
+short :: Int -> IO()
+short part
+    | part == 1 = run "s.txt"
+    | otherwise = run2 "s.txt"
+
+long :: Int ->  IO()
+long part
+    | part == 1 = run "l.txt"
+    | otherwise = run2 "l.txt"
+
+readInt :: String -> Int
+readInt = read
 
 data Operator = PLUS | MUL
     deriving (Eq, Show, Enum)
 
 
-calc :: Operator -> Int -> Int -> Int
-calc PLUS a b = a + b
-calc MUL a b = a * b
+solvable :: (Int, [Int]) -> Bool
+solvable (target ,[] )= False
+solvable (target ,[a]) = target == a
+solvable (target, one:two:tl) = (one * two <= target && solvable (target, (one * two):tl))
+                            || (one + two <= target && solvable (target ,(one + two):tl))
 
-hasSolution' :: (Int, [Int]) -> Bool
-hasSolution' (a, b) = hasSolution a b
+concatInt :: Int -> Int -> Int
+concatInt a b = read (show a ++ show b)
 
-possibilities' :: [Int] -> [Int]
-possibilities' [] = [0]
-possibilities' [a] = [a]
-possibilities' (x:xs) = [x * p | p <- possibilities xs] ++ [x + p | p <- possibilities xs]
+solvable2 :: (Int, [Int]) -> Bool
+--solvable2 (target ,[] )= False
+solvable2 (target ,[a]) = target == a
+solvable2 (target, one:two:tl) =
+                            (concatInt one two <= target && solvable2 (target, concatInt one two:tl))
+                            || (one * two <= target && solvable2 (target, (one * two):tl))
+                            || (one + two <= target && solvable2 (target ,(one + two):tl))
 
-possibilities :: [Int] -> [Int]
-possibilities s = possibilities' $ reverse s
-
-hasSolution :: Int -> [Int] -> Bool
-hasSolution target [] = False
-hasSolution target [a] = a == target
-hasSolution tgt lst = contains tgt $ possibilities lst
-
-
-processList :: String -> [Int]
-processList s = map toInt (filter (/= "") $ (splitOn " " s))
-
-processLine :: [String] -> (Int, [Int])
-processLine [target, numbers] = (toInt target, processList numbers)
-
-contains :: Eq a => a -> [a] -> Bool
-contains _ [] = False
-contains a (x:xs) = a == x || contains a xs
-
-toInt :: String -> Int
-toInt = read
-
-isInt x = x == fromInteger (round x)
